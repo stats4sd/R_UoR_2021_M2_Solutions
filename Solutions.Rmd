@@ -1,8 +1,6 @@
 ---
 title: "Introduction to R - Module 2 Solutions"
 output:
-  html_document:
-    df_print: paged
   learnr::tutorial:
     progressive: yes
     allow_skip: yes
