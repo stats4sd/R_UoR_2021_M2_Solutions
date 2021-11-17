@@ -35,8 +35,8 @@ There are a few errors in this code:
 
 1. The function is ggplot(). The library is ggplot2 
 2. The variable names are both incorrect. x should be "AgeGrp" and y should be "Attractiveness". Remember case is important! 
-3. Only one bracket is being closed in the first line of code. Both ggplot() and aes() need to have brackets closed 
-4. There is no + at the end of the line. 
+3. Only one bracket is being closed in the first line of code. Both ggplot() and aes() need to have brackets closed. This is a common error you will come across in R, thankfully it is something Rstudio will flag generally.
+4. There is no + at the end of the line. Remember the + is used to connect bits of code in ggrplot in order to add new layers.
 
 So it should look like:
 
@@ -57,8 +57,11 @@ ggplot(data = Pulse,  aes(x = AgeGrp, y = Attractiveness))+
 
 ### Solution
 
-I need to use the Pulse data, map Race to either the x or y aesthetic, and use geom_bar
-geom_bar should only have x or y aesthetic specified. The frequencies will appear by default on the unmapped aesthetic
+As seen above remember that this means we need to use the `ggplot` function and set our data to be `Pulse` as our first argument.
+
+For a bar chart we can actually set the variable `Race` to be either the X or Y axis. For a bar chart it doesn't matter, however we can't plot variables on both, just the one. Frequency counts will automatically be placed on the unused axis.
+
+Of course finally the function we need to plot a bar chart is `geom_bar()` and we don't need to supply any arguments in this case as we are not looking to adjust the visuals.
 
 ```{r sol2}
 ggplot(data=Pulse,aes(x=Race))+
@@ -75,7 +78,13 @@ ggplot(data=Pulse,aes(x=Race))+
 
 ### Solution
 
-I can copy and paste my previous response, and then use facet_wrap() with the PoliticalParty variable. Remember to use the tilde sign
+We can first start by simply just copying our answer from the previous exercise as we are just adding another element.
+
+Remember as we are adding a new "layer" therefore we need to continue to connect our lines of code with a +.
+
+In order to split our plot into multiple facets we use the aptly named `facet_wrap`. `facet_grid` is another option if we are wishing to split by 2 variables but we only need one so `facet_wrap` will do.
+
+Remember that whenever we use facets we have to include the tilde (`~`). This being a common operator in R used to denote a formula.
 
 ```{r sol3}
 ggplot(data=Pulse,aes(x=Race))+
@@ -93,7 +102,17 @@ ggplot(data=Pulse,aes(x=Race))+
 
 ### Solution
 
-This is a continuation of what we started with exercise 1; but we need to use facet_wrap() with gender. I will also map the fill axis to the AgeGrp and use lab() to provide sensible labels
+This is an extension of our code in the first exercise as we are once again producing boxplots of Attractiveness by AgeGrp. So we can extend this further.
+
+Firstly lets sort out adding some colour. To avoid our graph becoming too bloated lets keep to using AgeGrp as our variable for colouring in our boxplots.
+
+As we are attaching colour to a variables we need to specify it within our call to `aes` in the first line of code. If we were setting all boxes to be a specific colour we would instead to this in the call to `geom_boxplot` with something like `fill = "blue"` which would make all of them blue. 
+
+Remember boxplots will use the fill argument if we wish to fill the inside of the boxes. Colour would instead colour the outline of those boxes leaving the center white.
+
+We can add facets for Gender in the same way as the previous exercise.
+
+Finally we can set all of our labels using the labs argument, providing some text strings alllowing us to set our title, x title, y title and lengend title for our fill axis.
 
 ```{r sol4}
 ggplot(data = Pulse,  aes(x = AgeGrp, y = Attractiveness,fill=AgeGrp))+ 
@@ -112,18 +131,64 @@ ggplot(data = Pulse,  aes(x = AgeGrp, y = Attractiveness,fill=AgeGrp))+
 
 ### Solution
 
-Here I am going to use a scatter plot with geom_point() and also add a trend line using geom_smooth(). To set different colours I will need to map the color aesthetic, not the fill aesthetic, as this affects points and lines. I've also turned off the standard error bars around the trendline since they were a bit in the way for me!
+As attractiveness and income are both continuous variables, a scatterplot seems the best option so we should use the `geom_point` function. Alternatively you could argue we should use `geom_jitter` because attractiveness is constrained to only being 0 - 10.
 
-```{r sol5}
+```{r sol5a}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income))+ 
+  geom_point()
+```
 
+I would call this an optional addition to the answer, you can choose whichever you prefer.
+
+```{r sol5b}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income))+ 
+  geom_jitter()
+```
+
+For now i'll stick with `geom_point`, in truth you are much more likely to use this in your future work as jitter is quite dependent on the situation.
+
+A nice addition to this graph to help show the relationship even more clearly could be `geom_smooth`. This essentially plots a line of best fit between our two variables and are useful when plotting two continuous axes. 
+
+```{r sol5c}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income))+ 
+  geom_point()+
+  geom_smooth()
+```
+
+Now lets add our colour, remember with point and smooth we use colour rather than fill.
+
+```{r sol5d}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income,color=PoliticalParty))+ 
+  geom_point()+
+  geom_smooth()
+```
+
+The areas around the lines represent our standard errors but are starting to make the graph a little hard to read as they overlap with our points. We can remove these use an argument `se=FALSE` 
+
+```{r sol5e}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income,color=PoliticalParty))+ 
+  geom_point()+
+  geom_smooth(se = FALSE)
+```
+
+Finally, income is a very skewed variable and therefore would benefit greatly from a transformation to make our graph a bit easier to read. For income a log10 transformation is highly recommended though other transformations in ggplot do exist. Here we will use `scale_y_log10` to do this.
+
+```{r sol5f}
 ggplot(data = Pulse,  aes(x = Attractiveness, y = Income,color=PoliticalParty))+ 
   geom_point() +
     geom_smooth(se=FALSE)+
-      labs(title = "Income by Attractiveness and Political Party",y="Income",x="Percieved Attractiveness",col="Political Party")+
         scale_y_log10()
+```
 
+Finally lets add our labels.
 
+```{r sol5g}
+ggplot(data = Pulse,  aes(x = Attractiveness, y = Income,color=PoliticalParty))+ 
+  geom_point() +
+    geom_smooth(se=FALSE)+
+        scale_y_log10()+
+          labs(title = "Income by Attractiveness and Political Party",y="Income",x="Percieved Attractiveness",col="Political Party")
 ```
 
 
-My general conclusion is there is not much relationship. The people rating themselves with very low attractiveness scores do maybe have lower incomes on average, but there are very few of these people to be drawing conclusions from. Equally there doesnt seem to be any differences in this relationship by political party.
+My general conclusion is there is not much relationship. The people rating themselves with very low attractiveness scores do maybe have lower incomes on average, but there are very few of these people to be drawing conclusions from. Equally there doesn't seem to be any differences in this relationship by political party.
